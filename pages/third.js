@@ -2,6 +2,7 @@ import { Component } from "react";
 import Head from "next/head";
 import styled from "styled-components";
 import axios from "axios";
+var _ = require("underscore");
 
 const ChatContainer = styled.div`
   display:none;
@@ -11,7 +12,7 @@ const ChatContainer = styled.div`
 `;
 const ChatBoxWrapper = styled.div`
   width:240px;
-  height:500px;
+  height:150px;
   border:1px #555 solid;
   position:relative;
 `;
@@ -20,7 +21,7 @@ const ChatBox = styled.div`
     position:absolute;
     bottom:0;
     left:0;
-    max-height:500px;
+    max-height:150px;
     overflow:auto;
 `;
 const SubmitButton = styled.button`
@@ -44,7 +45,9 @@ class Index extends Component {
       time: 0,
       msg: "",
       sending: 0,
-      scanning: 0
+      scanning: 0,
+
+      chatContent: {}
     };
     this.contentAdder = this.contentAdder.bind(this);
     this.nameEntered = this.nameEntered.bind(this);
@@ -81,6 +84,12 @@ class Index extends Component {
     }
     this.chatFetcher();
   }
+  extend(obj, src) {
+    for (var key in src) {
+      if (src.hasOwnProperty(key)) obj[key] = src[key];
+    }
+    return obj;
+  }
   sendMsg() {
     var lastTime = 0;
     if (this.state.time == 0) {
@@ -111,6 +120,11 @@ class Index extends Component {
             // alert(response.data[0]["date"]);
             var i = 0;
             while (i < response.data.length) {
+              // var contentObj = $.merge(response.data, e.state.chatContent);
+              var contentObj = _.extend(response.data, e.state.chatContent);
+              console.log(contentObj);
+              e.setState({ chatContent: contentObj });
+
               e.contentAdder(response.data[i]);
               i += 1;
             }
@@ -178,6 +192,9 @@ class Index extends Component {
             Name: {this.state.name}
           </div>
           <ChatBoxWrapper><ChatBox className="chatBox" /></ChatBoxWrapper>
+          <div>
+            dfsxas
+          </div>
           <input
             value={this.state.msg}
             onChange={e => {

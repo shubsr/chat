@@ -11,7 +11,7 @@ const ChatContainer = styled.div`
 `;
 const ChatBoxWrapper = styled.div`
   width:240px;
-  height:500px;
+  height:150px;
   border:1px #555 solid;
   position:relative;
 `;
@@ -20,7 +20,7 @@ const ChatBox = styled.div`
     position:absolute;
     bottom:0;
     left:0;
-    max-height:500px;
+    max-height:150px;
     overflow:auto;
 `;
 const SubmitButton = styled.input`
@@ -50,12 +50,11 @@ class Index extends Component {
       scanning: 0
     };
     this.contentAdder = this.contentAdder.bind(this);
-    this.nameEntered = this.nameEntered.bind(this);
-    this.chatFetcher = this.chatFetcher.bind(this);
     this.validator = this.validator.bind(this);
+    this.msgGrabber = this.msgGrabber.bind(this);
   }
   contentAdder(data) {
-    if (data.name != this.state.name) {
+    if (data.sender != 1) {
       $(".chatBox")
         .first()
         .append(
@@ -76,96 +75,6 @@ class Index extends Component {
     var height = wtf[0].scrollHeight;
     wtf.scrollTop(height);
   }
-  nameEntered() {
-    var theName = "";
-    if (this.state.nameField == "") {
-      this.setState({ name: "Unknown" });
-    } else {
-      this.setState({ name: this.state.nameField });
-    }
-    this.chatFetcher();
-  }
-  sendMsg() {
-    var lastTime = 0;
-    if (this.state.time == 0) {
-      var d = new Date();
-      var currentTime = d.getTime();
-      this.setState({ time: currentTime });
-      lastTime = currentTime;
-    } else {
-      lastTime = this.state.time;
-    }
-    // alert(lastTime);
-    var e = this;
-    if (this.state.scanning == 0 && this.state.msg != "") {
-      var message = this.state.msg;
-      this.setState({ sending: 1, msg: "" });
-      axios({
-        method: "post",
-        url: "http://localhost:3001/chat",
-        data: {
-          name: this.state.name,
-          msg: message,
-          time: lastTime
-        }
-      }).then(function(response) {
-        if (e.state.scanning == 0) {
-          if (response.data.length != 0) {
-            e.setState({ time: response.data[response.data.length - 1].date });
-            // alert(response.data[0]["date"]);
-            var i = 0;
-            while (i < response.data.length) {
-              e.contentAdder(response.data[i]);
-              i += 1;
-            }
-          }
-        }
-        e.setState({ sending: 0 });
-
-        //console.log(response.data.length);
-      });
-    }
-  }
-  chatFetcher() {
-    var lastTime = 0;
-    if (this.state.time == 0) {
-      var d = new Date();
-      var currentTime = d.getTime();
-      this.setState({ time: currentTime });
-      lastTime = currentTime;
-    } else {
-      lastTime = this.state.time;
-    }
-    // alert(lastTime);
-    var e = this;
-    if (this.state.sending == 0) {
-      this.setState({ scanning: 1 });
-
-      axios({
-        method: "post",
-        url: "http://localhost:3001/chat-fetcher",
-        data: {
-          time: lastTime
-        }
-      }).then(function(response) {
-        if (e.state.sending == 0) {
-          if (response.data.length != 0) {
-            e.setState({ time: response.data[response.data.length - 1].date });
-            // alert(response.data[0]["date"]);
-            var i = 0;
-            while (i < response.data.length) {
-              e.contentAdder(response.data[i]);
-              i += 1;
-            }
-          }
-        }
-        e.setState({ scanning: 0 });
-
-        //console.log(response.data.length);
-      });
-    }
-    setTimeout(this.chatFetcher, 3000);
-  }
   validator() {
     if (
       this.state.name != "" &&
@@ -178,6 +87,43 @@ class Index extends Component {
       return false;
     }
   }
+  msgSubmit(e) {
+    e.preventDefault();
+    var dis = this;
+    if (this.state.msg != "") {
+      var msg_val = this.state.msg;
+      this.setState({ msg: "" });
+      axios({
+        method: "post",
+        url: "http://localhost:3001/user-chat",
+        data: { msg: msg_val, code: this.state.code }
+      });
+    }
+  }
+  msgGrabber() {
+    var time_val = this.state.time;
+    var code_val = this.state.code;
+    var e = this;
+    axios({
+      method: "post",
+      url: "http://localhost:3001/user-chat-grabber",
+      data: {
+        time: time_val,
+        code: code_val
+      }
+    }).then(function(response) {
+      if (response.data.length != 0) {
+        e.setState({ time: response.data[response.data.length - 1].time });
+        // alert(response.data[0]["date"]);
+        var i = 0;
+        while (i < response.data.length) {
+          e.contentAdder(response.data[i]);
+          i += 1;
+        }
+      }
+      setTimeout(e.msgGrabber, 100);
+    });
+  }
   charStart(e) {
     e.preventDefault();
     var dis = this;
@@ -186,6 +132,9 @@ class Index extends Component {
       var email_val = this.state.email;
       var mobile_val = this.state.mobile;
       var msg_val = this.state.msg;
+      var d = new Date();
+      var crrTime = d.getTime();
+      this.setState({ time: crrTime });
       this.setState({ name: "", email: "", mobile: "", msg: "" });
       axios({
         method: "post",
@@ -197,8 +146,10 @@ class Index extends Component {
           msg: msg_val
         }
       }).then(function(response) {
-        console.log(response.data.code);
+        // console.log(response.data.code);
         dis.setState({ code: response.data.code });
+        // dis.msgGrabber(response.data.code);
+        dis.msgGrabber();
       });
     }
   }
@@ -214,17 +165,22 @@ class Index extends Component {
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" />
         </Head>
         <ChatContainer code={this.state.code}>
-          <div>
-            Name: {this.state.name}
-          </div>
           <ChatBoxWrapper><ChatBox className="chatBox" /></ChatBoxWrapper>
-          <input
-            value={this.state.msg}
-            onChange={e => {
-              this.setState({ msg: e.target.value });
+          <form
+            onSubmit={e => {
+              this.msgSubmit(e);
             }}
-          />
-          <button onClick={() => this.sendMsg(this)}>Snd Msg</button>
+          >
+            <input
+              value={this.state.msg}
+              onChange={e => {
+                this.setState({ msg: e.target.value });
+              }}
+            />
+            <button type="submit">
+              Snd Msg
+            </button>
+          </form>
         </ChatContainer>
         <InputForm
           code={this.state.code}

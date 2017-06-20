@@ -19,6 +19,7 @@
     "next": "^2.4.3",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "styled-components": "^2.1.0"
+    "styled-components": "^2.1.0",
+    "underscore": "^1.8.3"
   }
 }

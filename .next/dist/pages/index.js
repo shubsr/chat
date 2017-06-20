@@ -51,18 +51,19 @@ var _jsxFileName = "D:\\sr_gir\\chat\\pages\\index.js?entry";
 var _templateObject = (0, _taggedTemplateLiteral3.default)(["\n  display:none;\n  ", ";\n"], ["\n  display:none;\n  ", ";\n"]),
     _templateObject2 = (0, _taggedTemplateLiteral3.default)(["\n  width:240px;\n  height:500px;\n  border:1px #555 solid;\n  position:relative;\n"], ["\n  width:240px;\n  height:500px;\n  border:1px #555 solid;\n  position:relative;\n"]),
     _templateObject3 = (0, _taggedTemplateLiteral3.default)(["\n    width:100%;\n    position:absolute;\n    bottom:0;\n    left:0;\n    max-height:500px;\n    overflow:auto;\n"], ["\n    width:100%;\n    position:absolute;\n    bottom:0;\n    left:0;\n    max-height:500px;\n    overflow:auto;\n"]),
-    _templateObject4 = (0, _taggedTemplateLiteral3.default)(["\n  ", ";\n"], ["\n  ", ";\n"]);
+    _templateObject4 = (0, _taggedTemplateLiteral3.default)(["\n"], ["\n"]),
+    _templateObject5 = (0, _taggedTemplateLiteral3.default)(["\n  \n"], ["\n  \n"]),
+    _templateObject6 = (0, _taggedTemplateLiteral3.default)(["\n  ", ";\n"], ["\n  ", ";\n"]);
 
 var ChatContainer = _styledComponents2.default.div(_templateObject, function (props) {
-  return props.name != "" && "\n    display:block;\n  ";
+  return props.code != "" && "\n    display:block;\n  ";
 });
 var ChatBoxWrapper = _styledComponents2.default.div(_templateObject2);
 var ChatBox = _styledComponents2.default.div(_templateObject3);
-var SubmitButton = _styledComponents2.default.button(_templateObject4, function (props) {
-  return props.name != "" && "\n    display:none;\n  ";
-});
-var NameInput = _styledComponents2.default.input(_templateObject4, function (props) {
-  return props.name != "" && "\n    display:none;\n  ";
+var SubmitButton = _styledComponents2.default.input(_templateObject4);
+var NameInput = _styledComponents2.default.input(_templateObject5);
+var InputForm = _styledComponents2.default.form(_templateObject6, function (props) {
+  return props.code != "" && "\n    display:none;\n  ";
 });
 
 var Index = function (_Component) {
@@ -77,6 +78,9 @@ var Index = function (_Component) {
       value: "",
       name: "",
       nameField: "",
+      email: "",
+      mobile: "",
+      code: "",
       time: 0,
       msg: "",
       sending: 0,
@@ -85,6 +89,7 @@ var Index = function (_Component) {
     _this.contentAdder = _this.contentAdder.bind(_this);
     _this.nameEntered = _this.nameEntered.bind(_this);
     _this.chatFetcher = _this.chatFetcher.bind(_this);
+    _this.validator = _this.validator.bind(_this);
     return _this;
   }
 
@@ -197,6 +202,41 @@ var Index = function (_Component) {
       setTimeout(this.chatFetcher, 3000);
     }
   }, {
+    key: "validator",
+    value: function validator() {
+      if (this.state.name != "" && this.state.email != "" && this.state.mobile != "" && this.state.msg != "") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }, {
+    key: "charStart",
+    value: function charStart(e) {
+      e.preventDefault();
+      var dis = this;
+      if (this.validator()) {
+        var name_val = this.state.name;
+        var email_val = this.state.email;
+        var mobile_val = this.state.mobile;
+        var msg_val = this.state.msg;
+        this.setState({ name: "", email: "", mobile: "", msg: "" });
+        (0, _axios2.default)({
+          method: "post",
+          url: "http://localhost:3001/user-register",
+          data: {
+            name: name_val,
+            email: email_val,
+            mobile: mobile_val,
+            msg: msg_val
+          }
+        }).then(function (response) {
+          console.log(response.data.code);
+          dis.setState({ code: response.data.code });
+        });
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this2 = this;
@@ -204,46 +244,46 @@ var Index = function (_Component) {
       return _react2.default.createElement("div", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 167
+          lineNumber: 207
         }
       }, _react2.default.createElement(_head2.default, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 168
+          lineNumber: 208
         }
       }, _react2.default.createElement("title", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 169
+          lineNumber: 209
         }
       }, "My page title"), _react2.default.createElement("meta", {
         name: "viewport",
         content: "initial-scale=1.0, width=device-width",
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 170
+          lineNumber: 210
         }
       }), _react2.default.createElement("script", { src: "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js", __source: {
           fileName: _jsxFileName,
-          lineNumber: 174
+          lineNumber: 214
         }
-      })), _react2.default.createElement(ChatContainer, { name: this.state.name, __source: {
+      })), _react2.default.createElement(ChatContainer, { code: this.state.code, __source: {
           fileName: _jsxFileName,
-          lineNumber: 176
+          lineNumber: 216
         }
       }, _react2.default.createElement("div", {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 177
+          lineNumber: 217
         }
       }, "Name: ", this.state.name), _react2.default.createElement(ChatBoxWrapper, {
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 180
+          lineNumber: 220
         }
       }, _react2.default.createElement(ChatBox, { className: "chatBox", __source: {
           fileName: _jsxFileName,
-          lineNumber: 180
+          lineNumber: 220
         }
       })), _react2.default.createElement("input", {
         value: this.state.msg,
@@ -252,29 +292,71 @@ var Index = function (_Component) {
         },
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 181
+          lineNumber: 221
         }
       }), _react2.default.createElement("button", { onClick: function onClick() {
           return _this2.sendMsg(_this2);
         }, __source: {
           fileName: _jsxFileName,
-          lineNumber: 187
+          lineNumber: 227
         }
-      }, "Snd Msg")), _react2.default.createElement(NameInput, {
-        value: this.state.nameField,
-        onChange: function onChange(e) {
-          _this2.setState({ nameField: e.target.value });
+      }, "Snd Msg")), _react2.default.createElement(InputForm, {
+        code: this.state.code,
+        onSubmit: function onSubmit(e) {
+          _this2.charStart(e);
         },
-        name: this.state.name,
         __source: {
           fileName: _jsxFileName,
-          lineNumber: 189
+          lineNumber: 229
         }
-      }), _react2.default.createElement(SubmitButton, { onClick: this.nameEntered, name: this.state.name, __source: {
+      }, _react2.default.createElement(NameInput, {
+        value: this.state.name,
+        onChange: function onChange(e) {
+          _this2.setState({ name: e.target.value });
+        },
+        placeholder: "Enter Name",
+        __source: {
           fileName: _jsxFileName,
-          lineNumber: 196
+          lineNumber: 235
         }
-      }, "Submit Name"));
+      }), _react2.default.createElement("input", {
+        type: "text",
+        onChange: function onChange(e) {
+          _this2.setState({ email: e.target.value });
+        },
+        value: this.state.email,
+        placeholder: "Enter Email",
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 242
+        }
+      }), _react2.default.createElement("input", {
+        type: "text",
+        onChange: function onChange(e) {
+          _this2.setState({ mobile: e.target.value });
+        },
+        value: this.state.mobile,
+        placeholder: "Enter Mobile",
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 250
+        }
+      }), _react2.default.createElement("input", {
+        type: "text",
+        onChange: function onChange(e) {
+          _this2.setState({ msg: e.target.value });
+        },
+        value: this.state.msg,
+        placeholder: "Enter Your Message",
+        __source: {
+          fileName: _jsxFileName,
+          lineNumber: 258
+        }
+      }), _react2.default.createElement("button", { type: "submit", __source: {
+          fileName: _jsxFileName,
+          lineNumber: 266
+        }
+      }, "Start Chat")));
     }
   }]);
 

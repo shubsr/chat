@@ -5,7 +5,7 @@ import axios from "axios";
 
 const ChatContainer = styled.div`
   display:none;
-  ${props => props.code != "" && `
+  ${props => props.name != "" && `
     display:block;
   `};
 `;
@@ -23,13 +23,13 @@ const ChatBox = styled.div`
     max-height:500px;
     overflow:auto;
 `;
-const SubmitButton = styled.input`
+const SubmitButton = styled.button`
+  ${props => props.name != "" && `
+    display:none;
+  `};
 `;
 const NameInput = styled.input`
-  
-`;
-const InputForm = styled.form`
-  ${props => props.code != "" && `
+  ${props => props.name != "" && `
     display:none;
   `};
 `;
@@ -41,9 +41,6 @@ class Index extends Component {
       value: "",
       name: "",
       nameField: "",
-      email: "",
-      mobile: "",
-      code: "",
       time: 0,
       msg: "",
       sending: 0,
@@ -52,7 +49,6 @@ class Index extends Component {
     this.contentAdder = this.contentAdder.bind(this);
     this.nameEntered = this.nameEntered.bind(this);
     this.chatFetcher = this.chatFetcher.bind(this);
-    this.validator = this.validator.bind(this);
   }
   contentAdder(data) {
     if (data.name != this.state.name) {
@@ -166,42 +162,6 @@ class Index extends Component {
     }
     setTimeout(this.chatFetcher, 3000);
   }
-  validator() {
-    if (
-      this.state.name != "" &&
-      this.state.email != "" &&
-      this.state.mobile != "" &&
-      this.state.msg != ""
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-  charStart(e) {
-    e.preventDefault();
-    var dis = this;
-    if (this.validator()) {
-      var name_val = this.state.name;
-      var email_val = this.state.email;
-      var mobile_val = this.state.mobile;
-      var msg_val = this.state.msg;
-      this.setState({ name: "", email: "", mobile: "", msg: "" });
-      axios({
-        method: "post",
-        url: "http://localhost:3001/user-register",
-        data: {
-          name: name_val,
-          email: email_val,
-          mobile: mobile_val,
-          msg: msg_val
-        }
-      }).then(function(response) {
-        console.log(response.data.code);
-        dis.setState({ code: response.data.code });
-      });
-    }
-  }
   render() {
     return (
       <div>
@@ -213,7 +173,7 @@ class Index extends Component {
           />
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" />
         </Head>
-        <ChatContainer code={this.state.code}>
+        <ChatContainer name={this.state.name}>
           <div>
             Name: {this.state.name}
           </div>
@@ -226,45 +186,16 @@ class Index extends Component {
           />
           <button onClick={() => this.sendMsg(this)}>Snd Msg</button>
         </ChatContainer>
-        <InputForm
-          code={this.state.code}
-          onSubmit={e => {
-            this.charStart(e);
+        <NameInput
+          value={this.state.nameField}
+          onChange={e => {
+            this.setState({ nameField: e.target.value });
           }}
-        >
-          <NameInput
-            value={this.state.name}
-            onChange={e => {
-              this.setState({ name: e.target.value });
-            }}
-            placeholder="Enter Name"
-          />
-          <input
-            type="text"
-            onChange={e => {
-              this.setState({ email: e.target.value });
-            }}
-            value={this.state.email}
-            placeholder="Enter Email"
-          />
-          <input
-            type="text"
-            onChange={e => {
-              this.setState({ mobile: e.target.value });
-            }}
-            value={this.state.mobile}
-            placeholder="Enter Mobile"
-          />
-          <input
-            type="text"
-            onChange={e => {
-              this.setState({ msg: e.target.value });
-            }}
-            value={this.state.msg}
-            placeholder="Enter Your Message"
-          />
-          <button type="submit">Start Chat</button>
-        </InputForm>
+          name={this.state.name}
+        />
+        <SubmitButton onClick={this.nameEntered} name={this.state.name}>
+          Submit Name
+        </SubmitButton>
       </div>
     );
   }

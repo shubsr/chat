@@ -51,7 +51,9 @@ app
         return res.json(dt);
       });
     });
-
+    server.get("/admin-chat/:code", (req, res) => {
+      return handle(req, res);
+    });
     server.get("*", (req, res) => {
       return handle(req, res);
     });

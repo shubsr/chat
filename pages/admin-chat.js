@@ -3,12 +3,6 @@ import Head from "next/head";
 import styled from "styled-components";
 import axios from "axios";
 
-const ChatContainer = styled.div`
-  display:none;
-  ${props => props.code != "" && `
-    display:block;
-  `};
-`;
 const ChatBoxWrapper = styled.div`
   width:240px;
   height:150px;
@@ -23,69 +17,29 @@ const ChatBox = styled.div`
     max-height:150px;
     overflow:auto;
 `;
-const SubmitButton = styled.input`
-`;
-const NameInput = styled.input`
-  
-`;
-const InputForm = styled.form`
-  ${props => props.code != "" && `
-    display:none;
-  `};
-`;
 
-class Chat extends Component {
+class AdminChat extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: "",
-      name: "",
-      nameField: "",
-      email: "",
-      mobile: "",
-      code: "",
+      code: "admin",
       time: 0,
       msg: "",
-      sending: 0,
-      scanning: 0
+      userCode: props.url.query.code
     };
     this.contentAdder = this.contentAdder.bind(this);
-    this.validator = this.validator.bind(this);
     this.msgGrabber = this.msgGrabber.bind(this);
   }
-  contentAdder(data) {
-    if (data.sender != 1) {
-      $(".chatBox")
-        .first()
-        .append(
-          "<div style='float:left;'>" +
-            data.msg +
-            "</div><div style='clear:both;'></div>"
-        );
-    } else {
-      $(".chatBox")
-        .first()
-        .append(
-          "<div style='float:right;'>" +
-            data.msg +
-            "</div><div style='clear:both;'></div>"
-        );
-    }
-    var wtf = $(".chatBox").first();
-    var height = wtf[0].scrollHeight;
-    wtf.scrollTop(height);
-  }
-  validator() {
-    if (
-      this.state.name != "" &&
-      this.state.email != "" &&
-      this.state.mobile != "" &&
-      this.state.msg != ""
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+  componentDidMount() {
+    axios({
+      method: "post",
+      url: "http://localhost:3001/admin-responded",
+      data: {
+        code: this.state.code,
+        userCode: this.state.userCode
+      }
+    });
+    this.msgGrabber();
   }
   msgSubmit(e) {
     e.preventDefault();
@@ -95,76 +49,77 @@ class Chat extends Component {
       this.setState({ msg: "" });
       axios({
         method: "post",
-        url: "http://localhost:3001/user-chat",
-        data: { msg: msg_val, code: this.state.code }
+        url: "http://localhost:3001/admin-sender",
+        data: {
+          msg: msg_val,
+          code: this.state.code,
+          userCode: this.state.userCode
+        }
       });
     }
   }
+  contentAdder(data) {
+    if (data.sender != 1) {
+      $(".chatBox")
+        .first()
+        .append(
+          "<div style='float:right;'>" +
+            data.msg +
+            "</div><div style='clear:both;'></div>"
+        );
+    } else {
+      $(".chatBox")
+        .first()
+        .append(
+          "<div style='float:left;'>" +
+            data.msg +
+            "</div><div style='clear:both;'></div>"
+        );
+    }
+    var wtf = $(".chatBox").first();
+    var height = wtf[0].scrollHeight;
+    wtf.scrollTop(height);
+  }
   msgGrabber() {
     var time_val = this.state.time;
+    if (this.state.time == 0) {
+      time_val = 1111;
+      this.setState({ time: time_val });
+    }
     var code_val = this.state.code;
     var e = this;
     axios({
       method: "post",
-      url: "http://localhost:3001/user-chat-grabber",
+      url: "http://localhost:3001/admin-chat",
       data: {
         time: time_val,
-        code: code_val
+        code: code_val,
+        userCode: this.state.userCode
       }
     }).then(function(response) {
       if (response.data.length != 0) {
         e.setState({ time: response.data[response.data.length - 1].time });
-        // alert(response.data[0]["date"]);
         var i = 0;
         while (i < response.data.length) {
           e.contentAdder(response.data[i]);
           i += 1;
         }
       }
-      setTimeout(e.msgGrabber, 100);
+      setTimeout(e.msgGrabber, 800);
     });
-  }
-  charStart(e) {
-    e.preventDefault();
-    var dis = this;
-    if (this.validator()) {
-      var name_val = this.state.name;
-      var email_val = this.state.email;
-      var mobile_val = this.state.mobile;
-      var msg_val = this.state.msg;
-      var d = new Date();
-      var crrTime = d.getTime();
-      this.setState({ time: crrTime });
-      this.setState({ name: "", email: "", mobile: "", msg: "" });
-      axios({
-        method: "post",
-        url: "http://localhost:3001/user-register",
-        data: {
-          name: name_val,
-          email: email_val,
-          mobile: mobile_val,
-          msg: msg_val
-        }
-      }).then(function(response) {
-        // console.log(response.data.code);
-        dis.setState({ code: response.data.code });
-        // dis.msgGrabber(response.data.code);
-        dis.msgGrabber();
-      });
-    }
   }
   render() {
     return (
       <div>
         <Head>
-          <title>My page title</title>
+          <title>Chat With User</title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"
           />
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" />
         </Head>
-        <ChatContainer code={this.state.code}>
+        <div>
           <ChatBoxWrapper><ChatBox className="chatBox" /></ChatBoxWrapper>
           <form
             onSubmit={e => {
@@ -181,49 +136,10 @@ class Chat extends Component {
               Snd Msg
             </button>
           </form>
-        </ChatContainer>
-        <InputForm
-          code={this.state.code}
-          onSubmit={e => {
-            this.charStart(e);
-          }}
-        >
-          <NameInput
-            value={this.state.name}
-            onChange={e => {
-              this.setState({ name: e.target.value });
-            }}
-            placeholder="Enter Name"
-          />
-          <input
-            type="text"
-            onChange={e => {
-              this.setState({ email: e.target.value });
-            }}
-            value={this.state.email}
-            placeholder="Enter Email"
-          />
-          <input
-            type="text"
-            onChange={e => {
-              this.setState({ mobile: e.target.value });
-            }}
-            value={this.state.mobile}
-            placeholder="Enter Mobile"
-          />
-          <input
-            type="text"
-            onChange={e => {
-              this.setState({ msg: e.target.value });
-            }}
-            value={this.state.msg}
-            placeholder="Enter Your Message"
-          />
-          <button type="submit">Start Chat</button>
-        </InputForm>
+        </div>
       </div>
     );
   }
 }
 
-export default Chat;
+export default AdminChat;

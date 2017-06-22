@@ -29,7 +29,11 @@ class Admin extends Component {
         $(".chats-contrainer")
           .first()
           .append(
-            "<div>" + data[i].name + "</div><div style='clear:both;'></div>"
+            "<div onClick=window.open('/admin-chat/" +
+              data[i].code +
+              "','_self')>" +
+              data[i].name +
+              "</div><div style='clear:both;'></div>"
           );
       }
       i++;
@@ -42,7 +46,7 @@ class Admin extends Component {
       url: "http://localhost:3001/all-chats-admin",
       data: { code: "admin" }
     }).then(function(response) {
-      console.log(response.data);
+      // console.log(response.data);
       e.contentAdder(response.data);
     });
   }

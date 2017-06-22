@@ -121,7 +121,7 @@ class Index extends Component {
           i += 1;
         }
       }
-      setTimeout(e.msgGrabber, 100);
+      setTimeout(e.msgGrabber, 800);
     });
   }
   charStart(e) {

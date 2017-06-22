@@ -34,6 +34,14 @@ app
       app.render(req, res, actualPage, queryParams);
     });
 
+    server.get("/admin-chat/:code", (req, res) => {
+      const actualPage = "/admin-chat";
+      const queryParams = {
+        code: req.params.code
+      };
+      app.render(req, res, actualPage, queryParams);
+    });
+
     server.get("/save/:name", (req, res) => {
       var item = { name: req.params.name };
       var data = new Names(item);

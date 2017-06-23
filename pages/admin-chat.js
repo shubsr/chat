@@ -3,6 +3,8 @@ import Head from "next/head";
 import styled from "styled-components";
 import axios from "axios";
 
+const my_api = "http://192.168.1.15:3001";
+
 const ChatBoxWrapper = styled.div`
   width:240px;
   height:150px;
@@ -33,7 +35,7 @@ class AdminChat extends Component {
   componentDidMount() {
     axios({
       method: "post",
-      url: "http://localhost:3001/admin-responded",
+      url: my_api + "/admin-responded",
       data: {
         code: this.state.code,
         userCode: this.state.userCode
@@ -49,7 +51,7 @@ class AdminChat extends Component {
       this.setState({ msg: "" });
       axios({
         method: "post",
-        url: "http://localhost:3001/admin-sender",
+        url: my_api + "/admin-sender",
         data: {
           msg: msg_val,
           code: this.state.code,
@@ -90,7 +92,7 @@ class AdminChat extends Component {
     var e = this;
     axios({
       method: "post",
-      url: "http://localhost:3001/admin-chat",
+      url: my_api + "/admin-chat",
       data: {
         time: time_val,
         code: code_val,

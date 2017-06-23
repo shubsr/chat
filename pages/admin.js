@@ -3,6 +3,8 @@ import Head from "next/head";
 import styled from "styled-components";
 import axios from "axios";
 
+const my_api = "http://192.168.1.15:3001";
+
 class Admin extends Component {
   constructor(props) {
     super(props);
@@ -43,7 +45,7 @@ class Admin extends Component {
     var e = this;
     axios({
       method: "post",
-      url: "http://localhost:3001/all-chats-admin",
+      url: my_api + "/all-chats-admin",
       data: { code: "admin" }
     }).then(function(response) {
       // console.log(response.data);

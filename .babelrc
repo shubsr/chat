@@ -1,0 +1,26 @@
+{
+    "presets": [
+        "next/babel"
+    ],
+    "plugins": [
+        [
+            // npm install --save-dev babel-plugin-styled-components
+            "babel-plugin-styled-components",
+            {
+                "displayName": false,
+                "ssr": true,
+                "preprocess": false
+            }
+        ],
+        // npm install babel-plugin-polished --save
+        "babel-plugin-polished"
+    ],
+    "env": {
+        "test": {
+            "presets": [
+                "es2015",
+                "./babel"
+            ]
+        }
+    }
+}
